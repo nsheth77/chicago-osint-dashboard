@@ -11,6 +11,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Map screenshot MMS notifications
 - Repositioned zip code input
 
+## [3.0.0] - 2026-04-14
+
+### Added
+- **Viewport-Based Crime Filtering**: Dynamic crime counts based on visible map area
+  - Crime count updates when zooming or panning map
+  - Recent Crimes panel shows only crimes in current viewport
+  - Works in combination with severity/type filters
+  - Improves performance with large datasets
+- **Map Screenshot MMS**: Send crime map images via MMS
+  - Captures current map view with crime markers
+  - Sends as MMS with text summary
+  - Uses Mapbox canvas.toDataURL() for capture
+  - MVP uses data URIs (production needs cloud storage)
+
+### Changed
+- **Zip Code Input Repositioned**: Moved left (right-20) to avoid map controls
+  - No longer overlaps zoom in/out buttons
+  - No longer overlaps fullscreen button
+  - Better UX on smaller screens
+
+### Technical
+- New utility: `viewport-filter.ts` for lat/lng bounds filtering
+- New utility: `map-screenshot.ts` for Mapbox canvas export
+- Map ref wired through to SMS notification hook
+- MMS support added to Twilio API route
+- Viewport bounds tracking with `moveend` event listener
+
+### Known Limitations
+- MMS data URI approach may not work with all carriers (production needs S3/Cloudinary)
+- Large map screenshots (>500KB) may fail on some carriers
+- Screenshot capture requires map to be fully loaded
+
+### Documentation
+- Added `docs/mms-implementation-guide.md` for production setup
+
 ## [2.0.0] - 2026-04-14
 
 ### Added
