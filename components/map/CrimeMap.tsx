@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Crime } from '@/types/crime';
 import { useCrimeStore } from '@/lib/store/crime-store';
+import { ZipCodeInput } from './ZipCodeInput';
+import { SmsNotificationButton } from '@/components/notifications/SmsNotificationButton';
 
 interface CrimeMapProps {
   crimes: Crime[];
@@ -23,6 +25,31 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
   const [markerCount, setMarkerCount] = useState(0);
 
   console.log('🗺️ CrimeMap received crimes:', crimes.length, 'mapLoaded:', mapLoaded);
+
+  // Filter crimes based on selected filters (computed once for use in markers and SMS)
+  const filteredCrimes = useMemo(() => {
+    return crimes.filter((crime) => {
+      if (selectedSeverities.length > 0 && !selectedSeverities.includes(crime.severity)) {
+        return false;
+      }
+      if (selectedTypes.length > 0 && !selectedTypes.includes(crime.type)) {
+        return false;
+      }
+      return true;
+    });
+  }, [crimes, selectedSeverities, selectedTypes]);
+
+  // Handle zoom to location from zip code search
+  const handleZoomToLocation = (center: [number, number]) => {
+    if (!map.current) return;
+
+    map.current.flyTo({
+      center,
+      zoom: 13,
+      duration: 1500,
+      essential: true,
+    });
+  };
 
   // Initialize map
   useEffect(() => {
@@ -113,17 +140,6 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
     markers.current.forEach((marker) => marker.remove());
     markers.current = [];
 
-    // Filter crimes based on selected filters
-    const filteredCrimes = crimes.filter((crime) => {
-      if (selectedSeverities.length > 0 && !selectedSeverities.includes(crime.severity)) {
-        return false;
-      }
-      if (selectedTypes.length > 0 && !selectedTypes.includes(crime.type)) {
-        return false;
-      }
-      return true;
-    });
-
     console.log('🔍 Filtered crimes:', filteredCrimes.length, 'of', crimes.length);
 
     // Add new markers
@@ -185,7 +201,7 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
 
     setMarkerCount(markers.current.length);
     console.log('✅ Added', markers.current.length, 'markers to the map');
-  }, [crimes, mapLoaded, selectedSeverities, selectedTypes, setSelectedCrime]);
+  }, [filteredCrimes, mapLoaded, setSelectedCrime]);
 
   return (
     <div className="relative w-full h-full" style={{ minHeight: '600px' }}>
@@ -197,6 +213,17 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
           {markerCount.toLocaleString()} crimes displayed
         </div>
       </div>
+
+      {/* SMS Notification Button - positioned below crime count */}
+      {mapLoaded && (
+        <SmsNotificationButton
+          filteredCrimes={filteredCrimes}
+          disabled={!mapLoaded || filteredCrimes.length === 0}
+        />
+      )}
+
+      {/* Zip code search - only show after map is loaded */}
+      {mapLoaded && <ZipCodeInput onZoomToLocation={handleZoomToLocation} />}
     </div>
   );
 }
