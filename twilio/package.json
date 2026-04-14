@@ -1,0 +1,16 @@
+{
+  "name": "osint-dashboard-twilio",
+  "version": "1.0.0",
+  "description": "Twilio Serverless Functions for Chicago OSINT Dashboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "dependencies": {
+    "twilio": "^5.13.1",
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

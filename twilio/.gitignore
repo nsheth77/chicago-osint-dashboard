@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Twilio build artifacts
+.twilio-functions
+
+# Assets (generated from Next.js build)
+assets/*
+!assets/.gitkeep
