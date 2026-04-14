@@ -30,28 +30,13 @@ export async function POST(request: NextRequest) {
       to: phoneNumber,
     };
 
-    // If map snapshot provided, send as MMS with media
+    // If map snapshot provided, log warning (MMS not supported in MVP)
     if (mapSnapshot) {
-      console.log('📸 Sending MMS with map screenshot');
-
-      // Twilio accepts base64 data URLs directly in mediaUrl parameter
-      // We need to convert to a publicly accessible URL or use Twilio's media upload
-      // For simplicity, we'll convert base64 to a Buffer and upload inline
-
-      // Extract base64 data
-      const base64Data = mapSnapshot.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
-
-      // Upload to Twilio Media service
-      // Note: This requires creating a temporary public URL
-      // For production, consider using AWS S3 or similar
-
-      // For now, we'll use a workaround: data URIs (may not work with all carriers)
-      // Alternative: Upload to cloud storage first
-      messageOptions.mediaUrl = [mapSnapshot]; // Twilio will attempt to fetch this
-
-      console.log('⚠️ Using data URI for MMS - may not work with all carriers');
-      console.log('💡 Consider uploading to S3/CloudStorage for production');
+      console.warn('⚠️ Map snapshot provided but MMS not supported in MVP');
+      console.warn('💡 Falling back to SMS-only (text crime summary)');
+      console.warn('📝 For production MMS: Upload to S3/Cloudinary (see docs/mms-implementation-guide.md)');
+      console.log('📱 Sending SMS only (map screenshot skipped)');
+      // Do NOT set mediaUrl - continue with SMS-only
     } else {
       console.log('📱 Sending SMS only (no map screenshot)');
     }
@@ -67,13 +52,17 @@ export async function POST(request: NextRequest) {
         : undefined,
     };
 
-    console.log(`✅ ${mapSnapshot ? 'MMS' : 'SMS'} sent successfully:`, message.sid);
+    console.log('✅ SMS sent successfully:', message.sid);
 
     return NextResponse.json(response);
   } catch (error: any) {
-    console.error('Send SMS/MMS error:', error);
+    console.error('Send SMS error:', error);
+
+    // Provide more detailed error message from Twilio
+    const errorMessage = error.message || 'Failed to send SMS. Please try again.';
+
     return NextResponse.json(
-      { success: false, error: 'Failed to send SMS' },
+      { success: false, error: errorMessage },
       { status: 400 }
     );
   }
