@@ -18,6 +18,7 @@ export function useSmsNotification(
   const [otpAttempts, setOtpAttempts] = useState(0);
 
   const MAX_OTP_ATTEMPTS = 3;
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
 
   const reset = useCallback(() => {
     setStep('PHONE_INPUT');
@@ -42,7 +43,7 @@ export function useSmsNotification(
         return;
       }
 
-      const response = await fetch('/api/notifications/lookup', {
+      const response = await fetch(`${API_BASE}/notifications-lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phoneNumber: formatted }),
@@ -86,7 +87,7 @@ export function useSmsNotification(
       setLoading(true);
 
       try {
-        const response = await fetch('/api/notifications/verify-send', {
+        const response = await fetch(`${API_BASE}/notifications-verify-send`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phoneNumber: targetPhone }),
@@ -126,7 +127,7 @@ export function useSmsNotification(
     setOtpAttempts(otpAttempts + 1);
 
     try {
-      const response = await fetch('/api/notifications/verify-check', {
+      const response = await fetch(`${API_BASE}/notifications-verify-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phoneNumber, code: otpCode }),
@@ -177,7 +178,7 @@ export function useSmsNotification(
         console.warn('Map not ready for screenshot, sending SMS only');
       }
 
-      const response = await fetch('/api/notifications/send-sms', {
+      const response = await fetch(`${API_BASE}/notifications-send-sms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
