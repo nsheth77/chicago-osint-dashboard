@@ -50,6 +50,7 @@ export interface VerifyCheckResponse {
 export interface SendSmsRequest {
   phoneNumber: string;
   crimes: Crime[];
+  mapSnapshot?: string; // Optional base64 PNG data URL
 }
 
 export interface SendSmsResponse {
