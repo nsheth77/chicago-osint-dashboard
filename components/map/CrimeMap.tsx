@@ -6,6 +6,7 @@ import { Crime } from '@/types/crime';
 import { useCrimeStore } from '@/lib/store/crime-store';
 import { ZipCodeInput } from './ZipCodeInput';
 import { SmsNotificationButton } from '@/components/notifications/SmsNotificationButton';
+import { filterCrimesByViewport, getMapBounds } from '@/lib/utils/viewport-filter';
 
 interface CrimeMapProps {
   crimes: Crime[];
@@ -23,12 +24,14 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
 
   const [mapLoaded, setMapLoaded] = useState(false);
   const [markerCount, setMarkerCount] = useState(0);
+  const [viewportBounds, setViewportBounds] = useState<mapboxgl.LngLatBounds | null>(null);
 
   console.log('🗺️ CrimeMap received crimes:', crimes.length, 'mapLoaded:', mapLoaded);
 
-  // Filter crimes based on selected filters (computed once for use in markers and SMS)
+  // Filter crimes based on selected filters AND viewport bounds
   const filteredCrimes = useMemo(() => {
-    return crimes.filter((crime) => {
+    // First apply severity and type filters
+    const severityFiltered = crimes.filter((crime) => {
       if (selectedSeverities.length > 0 && !selectedSeverities.includes(crime.severity)) {
         return false;
       }
@@ -37,7 +40,10 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
       }
       return true;
     });
-  }, [crimes, selectedSeverities, selectedTypes]);
+
+    // Then apply viewport bounds filter
+    return filterCrimesByViewport(severityFiltered, viewportBounds);
+  }, [crimes, selectedSeverities, selectedTypes, viewportBounds]);
 
   // Handle zoom to location from zip code search
   const handleZoomToLocation = (center: [number, number]) => {
@@ -113,6 +119,25 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
     map.current.on('load', () => {
       console.log('✅ Mapbox map loaded successfully!');
       setMapLoaded(true);
+
+      // Set initial viewport bounds
+      if (map.current) {
+        setViewportBounds(map.current.getBounds());
+      }
+    });
+
+    // Add viewport tracking on map move
+    map.current.on('moveend', () => {
+      if (map.current) {
+        const bounds = map.current.getBounds();
+        if (bounds) {
+          setViewportBounds(bounds);
+          console.log('📍 Viewport updated:', {
+            sw: bounds.getSouthWest(),
+            ne: bounds.getNorthEast(),
+          });
+        }
+      }
     });
 
     map.current.on('error', (e) => {
