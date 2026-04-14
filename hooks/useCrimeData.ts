@@ -24,9 +24,11 @@ export function useCrimeData(limit: number = 1000, daysBack: number = 7) {
 
   const fetchData = async () => {
     try {
-      console.log('🔵 Starting fetch...', `/api/crimes?limit=${limit}&days=${daysBack}`);
+      const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+      const url = `${API_BASE}/crimes?limit=${limit}&days=${daysBack}`;
+      console.log('🔵 Starting fetch...', url);
       setIsLoading(true);
-      const response = await fetch(`/api/crimes?limit=${limit}&days=${daysBack}`);
+      const response = await fetch(url);
 
       console.log('🟢 Fetch response received:', response.status);
 
