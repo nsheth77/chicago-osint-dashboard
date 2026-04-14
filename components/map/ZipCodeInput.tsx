@@ -61,7 +61,7 @@ export function ZipCodeInput({ onZoomToLocation }: ZipCodeInputProps) {
   };
 
   return (
-    <div className="absolute top-4 right-4 z-10 w-48">
+    <div className="absolute top-4 right-20 z-10 w-48">
       <div className="bg-black/80 backdrop-blur-sm border border-white/10 rounded-lg p-2">
         <div className="relative">
           <Input
