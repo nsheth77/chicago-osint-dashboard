@@ -70,7 +70,7 @@ export function SmsNotificationDialog({
       case 'OTP_INVALID':
         return 'Enter Verification Code';
       case 'SENDING_SMS':
-        return 'Sending SMS...';
+        return 'Sending MMS...';
       case 'SUCCESS':
         return 'Success!';
       default:
@@ -197,7 +197,7 @@ export function SmsNotificationDialog({
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-white/50" />
             <p className="ml-3 text-sm text-white/70">
-              Sending crime summary...
+              Sending map and crime summary...
             </p>
           </div>
         );
@@ -207,12 +207,15 @@ export function SmsNotificationDialog({
           <div className="flex flex-col items-center gap-4 py-6">
             <CheckCircle className="h-12 w-12 text-green-500" />
             <p className="text-white text-center">
-              Crime summary sent to {formatPhoneDisplay(phoneNumber)}
+              Crime map and summary sent to {formatPhoneDisplay(phoneNumber)}
             </p>
             <p className="text-sm text-white/50 text-center">
               {crimes.length > 50
                 ? `Top 50 of ${crimes.length} crimes included`
                 : `${crimes.length} crime${crimes.length === 1 ? '' : 's'} included`}
+            </p>
+            <p className="text-xs text-white/40 text-center">
+              MMS may take 1-2 minutes to arrive
             </p>
           </div>
         );
