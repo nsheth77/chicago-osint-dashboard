@@ -1,10 +1,15 @@
 import { useState, useCallback } from 'react';
+import type mapboxgl from 'mapbox-gl';
 import { Crime } from '@/types/crime';
 import { SmsStep } from '@/types/sms';
 import { formatPhoneNumber } from '@/lib/utils/phone-validation';
 import { SMS_ERROR_MESSAGES } from '@/lib/utils/sms-error-messages';
+import { captureMapScreenshot, isMapReadyForScreenshot } from '@/lib/utils/map-screenshot';
 
-export function useSmsNotification(crimes: Crime[]) {
+export function useSmsNotification(
+  crimes: Crime[],
+  mapRef: React.RefObject<mapboxgl.Map | null>
+) {
   const [step, setStep] = useState<SmsStep>('PHONE_INPUT');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
@@ -157,10 +162,29 @@ export function useSmsNotification(crimes: Crime[]) {
     setLoading(true);
 
     try {
+      // Capture map screenshot
+      let mapSnapshot: string | null = null;
+
+      if (mapRef.current && isMapReadyForScreenshot(mapRef.current)) {
+        mapSnapshot = captureMapScreenshot(mapRef.current);
+
+        if (!mapSnapshot) {
+          console.warn('Failed to capture map screenshot, sending without image');
+        } else {
+          console.log('✅ Map screenshot captured for MMS');
+        }
+      } else {
+        console.warn('Map not ready for screenshot, sending SMS only');
+      }
+
       const response = await fetch('/api/notifications/send-sms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber, crimes }),
+        body: JSON.stringify({
+          phoneNumber,
+          crimes,
+          mapSnapshot, // Include screenshot data
+        }),
       });
 
       const data = await response.json();
@@ -172,7 +196,7 @@ export function useSmsNotification(crimes: Crime[]) {
         return;
       }
 
-      // SMS sent successfully
+      // SMS/MMS sent successfully
       setStep('SUCCESS');
       setLoading(false);
     } catch (err) {
@@ -180,7 +204,7 @@ export function useSmsNotification(crimes: Crime[]) {
       setStep('PHONE_INVALID');
       setLoading(false);
     }
-  }, [phoneNumber, crimes]);
+  }, [phoneNumber, crimes, mapRef]);
 
   return {
     step,

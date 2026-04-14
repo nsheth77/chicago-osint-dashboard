@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import type mapboxgl from 'mapbox-gl';
 import { MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SmsNotificationDialog } from './SmsNotificationDialog';
@@ -9,11 +10,13 @@ import { Crime } from '@/types/crime';
 interface SmsNotificationButtonProps {
   filteredCrimes: Crime[];
   disabled?: boolean;
+  mapRef: React.RefObject<mapboxgl.Map | null>;
 }
 
 export function SmsNotificationButton({
   filteredCrimes,
   disabled,
+  mapRef,
 }: SmsNotificationButtonProps) {
   const [open, setOpen] = useState(false);
 
@@ -34,6 +37,7 @@ export function SmsNotificationButton({
         open={open}
         onOpenChange={setOpen}
         crimes={filteredCrimes}
+        mapRef={mapRef}
       />
     </>
   );

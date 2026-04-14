@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import type mapboxgl from 'mapbox-gl';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import {
   Dialog,
@@ -20,12 +21,14 @@ interface SmsNotificationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   crimes: Crime[];
+  mapRef: React.RefObject<mapboxgl.Map | null>;
 }
 
 export function SmsNotificationDialog({
   open,
   onOpenChange,
   crimes,
+  mapRef,
 }: SmsNotificationDialogProps) {
   const {
     step,
@@ -40,7 +43,7 @@ export function SmsNotificationDialog({
     reset,
     canProceed,
     attemptsRemaining,
-  } = useSmsNotification(crimes);
+  } = useSmsNotification(crimes, mapRef);
 
   // Reset state when dialog closes
   useEffect(() => {

@@ -244,6 +244,7 @@ export function CrimeMap({ crimes }: CrimeMapProps) {
         <SmsNotificationButton
           filteredCrimes={filteredCrimes}
           disabled={!mapLoaded || filteredCrimes.length === 0}
+          mapRef={map}
         />
       )}
 
