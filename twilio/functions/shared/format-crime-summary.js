@@ -1,7 +1,5 @@
 // twilio/functions/shared/format-crime-summary.js
 
-const { SEVERITY_LABELS } = require('./severity');
-
 /**
  * Formats crimes into SMS-friendly text summary
  * @param {Array} crimes - Array of enriched crime objects
