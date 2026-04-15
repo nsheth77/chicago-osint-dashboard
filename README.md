@@ -56,7 +56,7 @@ TWILIO_PHONE_NUMBER=+1xxx
 TWILIO_VERIFY_SERVICE_SID=VAxxx
 
 # API endpoint (set based on deployment mode below)
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api  # for local
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api  # for local (or :3001 if using different port)
 # NEXT_PUBLIC_API_BASE_URL=https://your-app.twil.io  # for Twilio Serverless
 ```
 
@@ -74,11 +74,16 @@ TWILIO_VERIFY_SERVICE_SID=VAxxx
 This mode runs the full Next.js application with API routes on your local machine.
 
 ```bash
-# Make sure NEXT_PUBLIC_API_BASE_URL is set to http://localhost:3000/api
+# Make sure NEXT_PUBLIC_API_BASE_URL matches your dev server port
+# Default port is 3000
 npm run dev
+
+# If port 3000 is in use, specify a different port:
+# npm run dev -- -p 3001
+# Then set NEXT_PUBLIC_API_BASE_URL=http://localhost:3001/api
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) (or your specified port)
 
 **When to use:**
 - Active development and testing
